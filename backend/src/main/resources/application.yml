@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: cuan
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cuan_db
+    username: root
+    password: 785070
