@@ -14,8 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import Link from 'next/link'
-import { formatCpuSpecs } from '@/utils/format'
-import { CpuSpecs } from '@/types/hardwareTypes'
+import { formatGpuSpecs } from '@/utils/format'
+import { GpuSpecs } from '@/types/hardwareTypes'
 
 interface BaseResponse<T> {
     code: number;
@@ -31,8 +31,8 @@ interface BaseResponse<T> {
     pages: number;
   }
 
-  async function getCpuSpecs(page: number, size: number) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cpu-specs/page?page=${page}&size=${size}`, {
+  async function getGpuSpecs(page: number, size: number) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/gpu-specs/page?page=${page}&size=${size}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ interface BaseResponse<T> {
     })
     
     if (!res.ok) throw new Error('Failed to fetch CPU specs')
-    const data: BaseResponse<PageResponse<CpuSpecs>> = await res.json()
+    const data: BaseResponse<PageResponse<GpuSpecs>> = await res.json()
     if (data.code !== 200) {  // 检查 200 而不是 0
       throw new Error(data.message)
     }
@@ -48,18 +48,18 @@ interface BaseResponse<T> {
   }
   
 
-export default function CpuList() {
+export default function GpuList() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentPage = Number(searchParams.get('page')) || 1
-  const [data, setData] = useState<PageResponse<CpuSpecs> | null>(null)
+  const [data, setData] = useState<PageResponse<GpuSpecs> | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const result = await getCpuSpecs(currentPage, 10)
+        const result = await getGpuSpecs(currentPage, 10)
         setData(result)
       } catch (error) {
         console.error('Failed to fetch CPU specs:', error)
@@ -121,34 +121,34 @@ export default function CpuList() {
 
       {/* CPU 列表 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-  {data.records.map(cpu => (
-    <Card key={cpu.id} className="p-4">
+  {data.records.map(gpu => (
+    <Card key={gpu.id} className="p-4">
       <div className="relative w-full h-48 bg-muted rounded-lg mb-4 overflow-hidden">
       <Image
-        src={cpu.imageUrl || '/images/cpu-placeholder.jpg'}
-        alt={cpu.modelName}
+        src={gpu.imageUrl || '/images/gpu-placeholder.jpg'}
+        alt={gpu.modelName}
         fill
         className="object-contain hover:scale-105 transition-transform duration-200"
         loading="lazy"
         onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
             const target = e.currentTarget;
-            target.src = '/images/cpu-placeholder.jpg';
+            target.src = '/images/gpu-placeholder.jpg';
         }}
         />
       </div>
       <div className="space-y-2">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-medium text-lg">{cpu.modelName}</h3>
-            <p className="text-sm text-muted-foreground">{cpu.manufacturer}</p>
+            <h3 className="font-medium text-lg">{gpu.modelName}</h3>
+            <p className="text-sm text-muted-foreground">{gpu.manufacturer}</p>
           </div>
           <div className="text-lg font-bold text-primary">
-            ¥{cpu.msrp.toFixed(2)}
+            ¥{gpu.msrp.toFixed(2)}
           </div>
         </div>
         
         <div className="space-y-1 text-sm text-muted-foreground">
-          {Object.entries(formatCpuSpecs(cpu.specs)).map(([key, value]) => (
+          {Object.entries(formatGpuSpecs(gpu.specs)).map(([key, value]) => (
             <div key={key} className="flex justify-between">
               <span>{key}:</span>
               <span className="font-medium">{value}</span>
@@ -156,7 +156,7 @@ export default function CpuList() {
           ))}
         </div>
 
-        <Link href={`/hardware/${cpu.id}`} className="block mt-4">
+        <Link href={`/hardware/${gpu.id}`} className="block mt-4">
           <Button className="w-full">查看详情</Button>
         </Link>
       </div>

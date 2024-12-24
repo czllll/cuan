@@ -8,27 +8,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import work.dirtsai.backend.common.BaseResponse;
 import work.dirtsai.backend.model.entity.CpuSpecs;
+import work.dirtsai.backend.model.entity.GpuSpecs;
 import work.dirtsai.backend.service.CpuSpecsService;
+import work.dirtsai.backend.service.GpuSpecsService;
 import work.dirtsai.backend.utils.ResultUtils;
 
 @RestController
-@RequestMapping("/api/cpu-specs")
-public class CpuSpecsController {
+@RequestMapping("/api/gpu-specs")
+public class GpuSpecsController {
 
     @Resource
-    private CpuSpecsService cpuSpecsService;
+    private GpuSpecsService gpuSpecsService;
+
 
     /**
      * paginate cpu specs
      * @param page
      */
     @GetMapping("/page")
-    public BaseResponse<Page<CpuSpecs>> pageCpuSpecs(
+    public BaseResponse<Page<GpuSpecs>> pageCpuSpecs(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size
     ) {
-        Page<CpuSpecs> cpuSpecsPage = cpuSpecsService.getPageList(page, size);
-        return ResultUtils.success(cpuSpecsPage);
+        Page<GpuSpecs> gpuSpecsPage = gpuSpecsService.getPageList(page, size);
+        return ResultUtils.success(gpuSpecsPage);
     }
 
 }

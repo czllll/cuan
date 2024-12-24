@@ -7,28 +7,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import work.dirtsai.backend.common.BaseResponse;
-import work.dirtsai.backend.model.entity.CpuSpecs;
-import work.dirtsai.backend.service.CpuSpecsService;
+import work.dirtsai.backend.model.entity.MotherboardSpecs;
+import work.dirtsai.backend.service.MotherboardSpecsService;
 import work.dirtsai.backend.utils.ResultUtils;
 
 @RestController
-@RequestMapping("/api/cpu-specs")
-public class CpuSpecsController {
+@RequestMapping("/api/motherboard-specs")
+public class MotherboardSpecsController {
 
     @Resource
-    private CpuSpecsService cpuSpecsService;
+    private MotherboardSpecsService motherboardSpecsService;
+
 
     /**
      * paginate cpu specs
      * @param page
      */
     @GetMapping("/page")
-    public BaseResponse<Page<CpuSpecs>> pageCpuSpecs(
+    public BaseResponse<Page<MotherboardSpecs>> pageCpuSpecs(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size
     ) {
-        Page<CpuSpecs> cpuSpecsPage = cpuSpecsService.getPageList(page, size);
-        return ResultUtils.success(cpuSpecsPage);
+        Page<MotherboardSpecs> motherboardSpecsPage = motherboardSpecsService.getPageList(page, size);
+        return ResultUtils.success(motherboardSpecsPage);
     }
 
 }

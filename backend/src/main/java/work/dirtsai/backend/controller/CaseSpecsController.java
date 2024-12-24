@@ -7,28 +7,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import work.dirtsai.backend.common.BaseResponse;
-import work.dirtsai.backend.model.entity.CpuSpecs;
-import work.dirtsai.backend.service.CpuSpecsService;
+import work.dirtsai.backend.model.entity.CaseSpecs;
+import work.dirtsai.backend.service.CaseSpecsService;
 import work.dirtsai.backend.utils.ResultUtils;
 
 @RestController
-@RequestMapping("/api/cpu-specs")
-public class CpuSpecsController {
+@RequestMapping("/api/caseItem-specs")
+public class CaseSpecsController {
 
     @Resource
-    private CpuSpecsService cpuSpecsService;
+    private CaseSpecsService caseSpecsService;
+
 
     /**
      * paginate cpu specs
      * @param page
      */
     @GetMapping("/page")
-    public BaseResponse<Page<CpuSpecs>> pageCpuSpecs(
+    public BaseResponse<Page<CaseSpecs>> pageCpuSpecs(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size
     ) {
-        Page<CpuSpecs> cpuSpecsPage = cpuSpecsService.getPageList(page, size);
-        return ResultUtils.success(cpuSpecsPage);
+        Page<CaseSpecs> caseSpecsPage = caseSpecsService.getPageList(page, size);
+        return ResultUtils.success(caseSpecsPage);
     }
 
 }

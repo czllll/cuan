@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/select"
 import { Search } from "lucide-react"
 import CpuList from '@/components/CpuList'
+import GpuList from '@/components/GpuList'
+import PsuList from '@/components/PsuList'
+import CoolerList from '@/components/CoolerList'
+import CaseList from '@/components/CaseList'
+import StorageList from '@/components/StorageList'
+import MotherboardList from '@/components/Motherboard'
+import RamList from '@/components/RamList'
 
 export default function ComponentsPage() {
   return (
@@ -44,17 +51,52 @@ export default function ComponentsPage() {
           <TabsTrigger value="cpu">CPU</TabsTrigger>
           <TabsTrigger value="gpu">显卡</TabsTrigger>
           <TabsTrigger value="motherboard">主板</TabsTrigger>
-          <TabsTrigger value="memory">内存</TabsTrigger>
+          <TabsTrigger value="ram">内存</TabsTrigger>
           <TabsTrigger value="storage">存储</TabsTrigger>
           <TabsTrigger value="psu">电源</TabsTrigger>
           <TabsTrigger value="case">机箱</TabsTrigger>
-          <TabsTrigger value="cooling">散热器</TabsTrigger>
+          <TabsTrigger value="cooler">散热器</TabsTrigger>
         </TabsList>
 
         <TabsContent value="cpu" className="space-y-4">
           <Suspense fallback={<div>Loading...</div>}>
             <CpuList />
           </Suspense>
+        </TabsContent>
+        <TabsContent value="gpu" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <GpuList />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="psu" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <PsuList />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="cooler" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <CoolerList />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="case" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <CaseList />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="storage" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <StorageList />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="motherboard" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <MotherboardList />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="ram" className="space-y-4">
+          <Suspense fallback={<div>Loading...</div>}>
+            <RamList />
+          </Suspense> 
         </TabsContent>
       </Tabs>
     </div>
