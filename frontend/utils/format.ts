@@ -10,7 +10,7 @@ export const formatCpuSpecs = (specsString: string) => {
     功耗: `${specs.tdp}W`,
     接口: specs.socket,
     PCIe: `PCIe ${specs.pcie_version}`,
-    内存支持: specs.memory_support.join('/'),
+    内存支持: specs.memory_support?.join('/') || "",
     ...(specs.has_igpu ? { 核显: specs.igpu_name } : {})
   }
 }
@@ -37,7 +37,7 @@ export const formatPsuSpecs = (specsString: string) => {
     "认证": specs.efficiency,
     "风扇": `${specs.fan_size}mm`,
     "接口": formatConnectors(specs.connectors),
-    "保护": specs.protection.join(", ")
+    "保护": specs.protection?.join(", ")
   }
 }
 
@@ -83,7 +83,8 @@ export const formatCoolerSpecs = (specsString: string): FormattedCoolerSpecs => 
       "类型": formatCoolerType(specs.type),
       "散热功率": `${specs.tdp_rating}W`,
       "风扇转速": formatFanSpeed(specs.fan_speed),
-      "支持接口": specs.socket_support.join(", "),
+      // "支持接口": specs?.socket_support?.join(", ") || "",
+      "支持接口":  "",
       "尺寸": ""  // 先给一个默认值
   };
 
@@ -182,7 +183,7 @@ export const formatStorageSpecs = (specsString: string) => {
 export const formatCaseSpecs = (specsString: string) => {
   const specs: ParsedCaseSpecs = JSON.parse(specsString);
   return {
-      "规格": specs.form_factor.join("/"),
+      "规格": specs.form_factor?.join("/"),
       "尺寸": formatCaseDimensions(specs.dimensions),
       "显卡限长": `${specs.max_gpu_length}mm`,
       "散热器限高": `${specs.max_cpu_cooler}mm`,

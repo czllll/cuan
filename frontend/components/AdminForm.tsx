@@ -56,10 +56,6 @@ export function AdminForm({ register, type }: FormProps) {
             <Input {...register('specs.type')} />
           </div>
           <div>
-            <Label>Min Fan Speed (RPM)</Label>
-            <Input {...register('specs.fan_speed.min')} type="number" />
-          </div>
-          <div>
             <Label>Max Fan Speed (RPM)</Label>
             <Input {...register('specs.fan_speed.max')} type="number" />
           </div>
@@ -78,6 +74,10 @@ export function AdminForm({ register, type }: FormProps) {
           <div>
             <Label>Depth (mm)</Label>
             <Input {...register('specs.dimensions.depth')} type="number" />
+          </div>
+          <div>
+            <Label>socket_support</Label>
+            <Input {...register('specs.socket_support')} />
           </div>
         </div>
       );

@@ -72,7 +72,7 @@ export default function GpuList() {
   }, [currentPage])
 
   const handlePageChange = (newPage: number) => {
-    router.push(`/components?page=${newPage}`)
+    router.push(`/hardware?page=${newPage}`)
   }
 
   if (loading) {
