@@ -7,107 +7,92 @@ import { Input } from '@/components/ui/input';
 import { Download, Save } from 'lucide-react';
 import Papa from 'papaparse';
 
-interface HardwareDataType {
-  [key: string]: string[];
-}
-
-interface PaginationType {
-  [key: string]: {
-    currentPage: number;
-    totalPages: number;
-    loading: boolean;
-  };
-}
-
-interface SelectedConfigType {
-  [key: string]: string;
-}
-
 const API_BASE_URL = 'http://localhost:8080/api';
 
-const HARDWARE_TYPES: {[key: string]: string} = {
-  cpu: 'cpu-specs',
-  gpu: 'gpu-specs',
-  motherboard: 'motherboard-specs',
-  ram: 'ram-specs',
-  storage: 'storage-specs',
-  psu: 'psu-specs',
-  caseItem: 'caseItem-specs',
-  cooler: 'cooler-specs'
+const HARDWARE_TYPES = {
+  cpu: 'cpu',
+  gpu: 'gpu',
+  motherboard: 'motherboard',
+  ram: 'ram',
+  storage: 'storage',
+  psu: 'psu',
+  caseItem: 'caseItem',
+  cooler: 'cooler'
 };
 
 const TrainingDataCollector: React.FC = () => {
   // 状态定义
-  const [hardwareData, setHardwareData] = useState<HardwareDataType>({
+  const [hardwareData, setHardwareData] = useState<{[key: string]: string[]}>({
     cpu: [],
     gpu: [],
     motherboard: [],
     ram: [],
     storage: [],
     psu: [],
-    caseItem: [],
+    case: [],
     cooler: []
   });
   
-  // 统一的分页状态
-  const [pagination, setPagination] = useState<PaginationType>(
-    Object.keys(HARDWARE_TYPES).reduce((acc, type) => ({
-      ...acc,
-      [type]: {
-        currentPage: 1,
-        totalPages: 1,
-        loading: false
-      }
-    }), {})
-  );
+  const [isLoading, setIsLoading] = useState<{[key: string]: boolean}>({
+    cpu: false,
+    gpu: false,
+    motherboard: false,
+    ram: false,
+    storage: false,
+    psu: false,
+    case: false,
+    cooler: false
+  });
   
-  const [selectedConfig, setSelectedConfig] = useState<SelectedConfigType>({
+  const [selectedConfig, setSelectedConfig] = useState<{[key: string]: string}>({
     cpu: '',
     gpu: '',
     motherboard: '',
     ram: '',
     storage: '',
     psu: '',
-    caseItem: '',
+    case: '',
     cooler: '',
     totalPrice: ''
   });
+
+  const [searchValues, setSearchValues] = useState<{[key: string]: string}>({
+    cpu: '',
+    gpu: '',
+    motherboard: '',
+    ram: '',
+    storage: '',
+    psu: '',
+    case: '',
+    cooler: ''
+  });
   
-  const [savedConfigs, setSavedConfigs] = useState<SelectedConfigType[]>([]);
+  const [savedConfigs, setSavedConfigs] = useState<any[]>([]);
 
   // 通用的硬件数据获取函数
-  const fetchHardwareData = async (type: string, page = 1, size = 10) => {
+  const fetchHardwareData = async (type: string) => {
     try {
-      setPagination(prev => ({
+      setIsLoading(prev => ({
         ...prev,
-        [type]: { ...prev[type], loading: true }
+        [type]: true
       }));
       
-      const response = await fetch(`${API_BASE_URL}/${HARDWARE_TYPES[type]}/page?page=${page}&size=${size}`);
+      const response = await fetch(`${API_BASE_URL}/${type}`);
       const data = await response.json();
       
       if (data.code === 200 && data.data) {
-        const hardwareList = data.data.records.map(item => `${item.manufacturer} ${item.modelName}`);
-        
+        const hardwareList = [...new Set(data.data.map((item: any) => `${item.manufacturer} ${item.modelName}`))];
         setHardwareData(prev => ({
           ...prev,
-          [type]: page === 1 ? hardwareList : [...prev[type], ...hardwareList]
-        }));
-        
-        setPagination(prev => ({
-          ...prev,
-          [type]: {
-            currentPage: page,
-            totalPages: Math.ceil(data.data.total / size),
-            loading: false
-          }
+          [type]: hardwareList
         }));
       }
     } catch (error) {
       console.error(`Error fetching ${type} data:`, error);
-      setPagination(prev => ({
+    } finally {
+      setIsLoading(prev => ({
         ...prev,
-        [type]: { ...prev[type], loading: false }
+        [type]: false
       }));
     }
   };
@@ -127,11 +112,12 @@ const TrainingDataCollector: React.FC = () => {
     }));
   };
 
-  // 处理滚动加载更多
-  const handleLoadMore = (type: string) => {
-    if (!pagination[type].loading && pagination[type].currentPage < pagination[type].totalPages) {
-      fetchHardwareData(type, pagination[type].currentPage + 1);
-    }
+  // 搜索过滤
+  const getFilteredData = (type: string) => {
+    const keyword = searchValues[type].toLowerCase();
+    return hardwareData[type].filter(item => 
+      item.toLowerCase().includes(keyword)
+    );
   };
 
   // 保存配置
@@ -150,7 +136,6 @@ const TrainingDataCollector: React.FC = () => {
       
       const result = await response.json();
       if (result.code === 200) {
-        // 添加到本地列表
         const newConfig = {
           ...selectedConfig,
           id: result.data
@@ -165,12 +150,11 @@ const TrainingDataCollector: React.FC = () => {
           ram: '',
           storage: '',
           psu: '',
-          caseItem: '',
+          case: '',
           cooler: '',
           totalPrice: ''
         });
       } else {
-        console.error('保存失败:', result);
         alert('保存失败，请重试');
       }
     } catch (error) {
@@ -179,18 +163,31 @@ const TrainingDataCollector: React.FC = () => {
     }
   };
 
-  // 导出CSV
-  const handleExportCSV = () => {
-    const csv = Papa.unparse(savedConfigs);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'pc_configurations.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // 导出所有配置到CSV
+  const handleExportAllCSV = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/pc-configs/export`);
+      const result = await response.json();
+      
+      if (result.code === 200 && result.data) {
+        const csv = Papa.unparse(result.data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'all_pc_configurations.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert('导出失败，请重试');
+      }
+    } catch (error) {
+      console.error('导出错误:', error);
+      alert('导出错误，请重试');
+    }
   };
+
 
   return (
     <div className="container mx-auto p-4">
@@ -203,26 +200,32 @@ const TrainingDataCollector: React.FC = () => {
             {Object.keys(hardwareData).map(type => (
               <div key={type} className="space-y-2">
                 <Label htmlFor={type}>{type.toUpperCase()}</Label>
-                <select
-                  id={type}
-                  value={selectedConfig[type]}
-                  onChange={(e) => handleConfigChange(type, e.target.value)}
-                  className="w-full p-2 border rounded"
-                  onScrollCapture={() => handleLoadMore(type)}
-                >
-                  <option value="">请选择{type}</option>
-                  {hardwareData[type].map(item => (
-                    <option 
-                      key={item} 
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  ))}
-                  {pagination[type].loading && (
-                    <option disabled>加载中...</option>
-                  )}
-                </select>
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    placeholder={`搜索${type}`}
+                    value={searchValues[type]}
+                    onChange={(e) => {
+                      setSearchValues(prev => ({...prev, [type]: e.target.value}));
+                    }}
+                  />
+                  <select
+                    id={type}
+                    value={selectedConfig[type]}
+                    onChange={(e) => handleConfigChange(type, e.target.value)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">请选择{type}</option>
+                    {getFilteredData(type).map((item, index) => (
+                      <option key={`${type}-${item}-${index}`} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                    {isLoading[type] && (
+                      <option disabled>加载中...</option>
+                    )}
+                  </select>
+                </div>
               </div>
             ))}
             
@@ -248,13 +251,12 @@ const TrainingDataCollector: React.FC = () => {
             </Button>
             
             <Button 
-              onClick={handleExportCSV}
+              onClick={handleExportAllCSV}
               variant="outline"
               className="flex items-center gap-2"
-              disabled={savedConfigs.length === 0}
             >
               <Download className="w-4 h-4" />
-              导出CSV
+              导出所有配置
             </Button>
           </div>
         </CardContent>
